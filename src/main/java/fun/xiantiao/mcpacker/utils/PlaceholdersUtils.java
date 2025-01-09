@@ -3,7 +3,6 @@ package fun.xiantiao.mcpacker.utils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.security.SecureRandom;
 

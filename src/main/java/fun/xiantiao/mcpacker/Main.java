@@ -1,6 +1,5 @@
 package fun.xiantiao.mcpacker;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -35,12 +34,12 @@ public class Main {
         logger.info("Starting...");
 
         initDirectories();
-        extractResourceFile(Main.class,"/build.setting.json", getDataFolder().toString());
+        extractResourceFile(Main.class, "/mcp.build.setting.json", getDataFolder().toString());
 
         JsonObject settings = loadSettings();
         PlaceholdersUtils placeholdersUtils = new PlaceholdersUtils(settings);
 
-        String placeholder = placeholdersUtils.get("proxy.secret").toString();
+        String placeholder = placeholdersUtils.get("proxy.secret");
         logger.info("Placeholder: {}", placeholder);
 
         // 清空built
@@ -53,6 +52,7 @@ public class Main {
             suffixes.add(element.getAsString());
         }
 
+        // placeholder
         {
             getSubfolders(PATH_BUILT, true, suffixes).forEach(path -> {
                 try {
@@ -82,7 +82,7 @@ public class Main {
     }
 
     private static JsonObject loadSettings() {
-        Path settingsPath = getDataFolder().resolve("build.setting.json");
+        Path settingsPath = getDataFolder().resolve("mcp.build.setting.json");
 
         try (BufferedReader reader = Files.newBufferedReader(settingsPath)) {
             return JsonParser.parseReader(reader).getAsJsonObject();

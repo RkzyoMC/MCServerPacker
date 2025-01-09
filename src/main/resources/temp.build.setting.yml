@@ -1,4 +1,0 @@
-placeholders:
-  - proxy:
-      match: "%server.proxy.%"
-      key: "s"
