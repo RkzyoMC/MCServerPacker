@@ -9,8 +9,6 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
-import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -46,9 +44,6 @@ public class Main {
         JsonObject settings = loadSettings();
         PlaceholdersUtils placeholdersUtils = new PlaceholdersUtils(settings);
 
-        String placeholder = placeholdersUtils.get("proxy.secret");
-        logger.info("Placeholder: {}", placeholder);
-
         //backup
         compressFolder(PATH_DEFAULT, PATH_BACKUP_DEFAULT.resolve(getZipFileName()));
         compressFolder(PATH_BUILT, PATH_BACKUP_DEFAULT.resolve(getZipFileName()));
@@ -66,6 +61,7 @@ public class Main {
         // placeholder
         {
             getSubfolders(PATH_BUILT, true, suffixes).forEach(path -> {
+                logger.info("placeholder {}", path);
                 try {
                     String body = readFileToString(path); // 文件内容
                     String newBody = body;                // 新文件内容
@@ -73,7 +69,6 @@ public class Main {
                     for (String papi : strings) {
                         String papied = placeholdersUtils.get(papi); // 获取值
                         newBody = newBody.replaceAll("\\$\\(mcp\\."+papi+"\\)", papied);
-
                         writeFileOverwrite(path, newBody);
                     }
                 } catch (IOException e) {

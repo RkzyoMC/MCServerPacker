@@ -63,7 +63,7 @@ public class Tool {
      */
     public static void deleteFolder(Path folderPath) throws IOException {
         if (Files.notExists(folderPath)) {
-            System.out.println("Folder does not exist: " + folderPath);
+            logger.info("Folder does not exist: {}", folderPath);
             return;
         }
 
@@ -73,7 +73,7 @@ public class Tool {
                 .forEach(path -> {
                     try {
                         Files.delete(path);
-                        System.out.println("Deleted: " + path);
+                        logger.info("Deleted: {}", path);
                     } catch (IOException e) {
                         throw new RuntimeException("Failed to delete: " + path, e);
                     }
@@ -94,6 +94,7 @@ public class Tool {
         // 如果源是文件，直接复制文件
         if (sourceFile.isFile()) {
             Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
+            logger.info("copied {} to {}", source, destination);
             return;
         }
 
