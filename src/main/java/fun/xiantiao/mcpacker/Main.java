@@ -6,8 +6,11 @@ import com.google.gson.JsonParser;
 import fun.xiantiao.mcpacker.utils.PlaceholdersUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,6 +33,10 @@ public class Main {
     private static final Path PATH_BUILT_FILES = PATH_BUILT.resolve("files");
     private static final Path PATH_BUILT_SERVERS = PATH_BUILT.resolve("servers");
 
+    private static final Path PATH_BACKUP = getDataFolder().resolve("backup");
+    private static final Path PATH_BACKUP_DEFAULT = PATH_BACKUP.resolve("default");
+    private static final Path PATH_BACKUP_BUILT = PATH_BACKUP.resolve("built");
+
     public static void main(String[] args) throws IOException {
         logger.info("Starting...");
 
@@ -41,6 +48,10 @@ public class Main {
 
         String placeholder = placeholdersUtils.get("proxy.secret");
         logger.info("Placeholder: {}", placeholder);
+
+        //backup
+        compressFolder(PATH_DEFAULT, PATH_BACKUP_DEFAULT.resolve(getZipFileName()));
+        compressFolder(PATH_BUILT, PATH_BACKUP_DEFAULT.resolve(getZipFileName()));
 
         // 清空built
         deleteFolder(PATH_BUILT);
@@ -77,11 +88,15 @@ public class Main {
     private static void initDirectories() {
         createDirectory(PATH_DEFAULT_FILES);
         createDirectory(PATH_DEFAULT_SERVERS);
+
         createDirectory(PATH_BUILT_FILES);
         createDirectory(PATH_BUILT_SERVERS);
+
+        createDirectory(PATH_BACKUP_DEFAULT);
+        createDirectory(PATH_BACKUP_BUILT);
     }
 
-    private static JsonObject loadSettings() {
+    private static @NotNull JsonObject loadSettings() {
         Path settingsPath = getDataFolder().resolve("mcp.build.setting.json");
 
         try (BufferedReader reader = Files.newBufferedReader(settingsPath)) {
@@ -92,7 +107,7 @@ public class Main {
         }
     }
 
-    private static Path getDataFolder() {
+    private static @NotNull Path getDataFolder() {
         try {
             URL url = Main.class.getProtectionDomain().getCodeSource().getLocation();
             Path jarPath = Paths.get(url.toURI()).getParent();
@@ -103,7 +118,11 @@ public class Main {
         }
     }
 
-    public static Logger getLogger() {
+    private static @NotNull String getZipFileName() {
+        return getStringTime()+".zip";
+    }
+
+    public static @NotNull Logger getLogger() {
         return logger;
     }
 }

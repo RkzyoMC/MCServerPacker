@@ -10,9 +10,12 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static fun.xiantiao.mcpacker.Main.getLogger;
 
@@ -248,5 +251,55 @@ public class Tool {
         }
 
         return values;
+    }
+
+    /**
+     * 压缩整个文件夹
+     * @param sourceFolder 文件夹
+     * @param zipFileName 输出位置
+     * @throws IOException 失败
+     */
+    public static void compressFolder(Path sourceFolder, Path zipFileName) throws IOException {
+        try (FileOutputStream fos = new FileOutputStream(zipFileName.toFile());
+             ZipOutputStream zos = new ZipOutputStream(fos)) {
+
+            File folder = new File(sourceFolder.toUri());
+            addFolderToZip(folder, folder.getName(), zos);
+        }
+    }
+    // 递归添加文件夹内容到Zip
+    private static void addFolderToZip(File folder, String parentFolder, ZipOutputStream zos) throws IOException {
+        File[] files = folder.listFiles();
+        if (files == null) return;
+        for (File file : files) {
+            if (file.isDirectory()) {
+                addFolderToZip(file, parentFolder + "/" + file.getName(), zos);
+            } else {
+                addFileToZip(file, parentFolder + "/" + file.getName(), zos);
+            }
+        }
+    }
+    // 添加单个文件到Zip
+    private static void addFileToZip(File file, String entryName, ZipOutputStream zos) throws IOException {
+        try (FileInputStream fis = new FileInputStream(file)) {
+            ZipEntry zipEntry = new ZipEntry(entryName);
+            zos.putNextEntry(zipEntry);
+
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = fis.read(buffer)) > 0) {
+                zos.write(buffer, 0, length);
+            }
+
+            zos.closeEntry();
+        }
+    }
+
+    public static @NotNull String getStringTime() {
+        // 获取当前时间
+        Date now = new Date();
+        // 格式化时间：yyyy-MM-dd HH:mm:ss
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
+        return sdf.format(now);
     }
 }
