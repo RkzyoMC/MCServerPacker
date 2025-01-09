@@ -1,0 +1,33 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+}
+
+group = 'fun.xiantiao'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    compileOnly("org.jetbrains:annotations:16.0.1")
+    // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core
+    implementation("org.apache.logging.log4j:log4j-core:2.24.3")
+    // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api
+    implementation("org.apache.logging.log4j:log4j-api:2.24.3")
+    // https://mvnrepository.com/artifact/space.arim.dazzleconf/dazzleconf-ext-snakeyaml
+    implementation("space.arim.dazzleconf:dazzleconf-ext-snakeyaml:1.3.0-M2")
+    // https://mvnrepository.com/artifact/com.google.code.gson/gson
+    implementation 'com.google.code.gson:gson:2.11.0'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.build {
+    dependsOn tasks.shadowJar
+}

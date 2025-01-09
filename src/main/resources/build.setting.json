@@ -1,0 +1,14 @@
+{
+  "placeholder": {
+    "suffixes": [
+      ".sql"
+    ],
+    "data": {
+      "name": "PrimalRealm",
+      "proxy": {
+        "secret": "$(velocity.secret)",
+        "port": 25565
+      }
+    }
+  }
+}
