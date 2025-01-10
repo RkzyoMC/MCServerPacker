@@ -46,7 +46,7 @@ public class Main {
 
         //backup
         compressFolder(PATH_DEFAULT, PATH_BACKUP_DEFAULT.resolve(getZipFileName()));
-        compressFolder(PATH_BUILT, PATH_BACKUP_DEFAULT.resolve(getZipFileName()));
+        compressFolder(PATH_BUILT, PATH_BACKUP_BUILT.resolve(getZipFileName()));
 
         // 清空built
         deleteFolder(PATH_BUILT);
