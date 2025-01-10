@@ -261,6 +261,7 @@ public class Tool {
      * @throws IOException 失败
      */
     public static void compressFolder(Path sourceFolder, Path zipFileName) throws IOException {
+        logger.info("compressing {}", sourceFolder);
         try (FileOutputStream fos = new FileOutputStream(zipFileName.toFile());
              ZipOutputStream zos = new ZipOutputStream(fos)) {
 
