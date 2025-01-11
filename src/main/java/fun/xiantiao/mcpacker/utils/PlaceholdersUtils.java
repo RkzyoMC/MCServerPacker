@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.SecureRandom;
+import java.util.UUID;
 
 import static fun.xiantiao.mcpacker.utils.Tool.getValueByPath;
 
@@ -27,6 +28,8 @@ public class PlaceholdersUtils {
     private @NotNull String resolveValue(@NotNull String value) {
         if ("$(velocity.secret)".equals(value)) {
             return generateRandomString(16);
+        } else if ("$(random.uuid)".equals(value)) {
+            return UUID.randomUUID().toString();
         }
         return value;
     }
