@@ -38,6 +38,20 @@ java -cp MCServerPacker-1.0-SNAPSHOT-all.jar fun.xiantiao.mcpacker.Main
 
 look `built` folder
 
+- /built/files/init.yml
+```yaml
+mysql:
+  # if use $(mcp.port) will error
+  # use (number) to remove "
+  port: 3306
+  password: "cb2cf7c3-2b6b-4b3d-9df1-9cbaa20dc6ac"
+```
+
+## variable
+
+- `$(velocity.secret)`
+- `$(random.uuid)`
+
 ## error info
 
 ### Invalid path
