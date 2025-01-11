@@ -2,6 +2,8 @@ package fun.xiantiao.mcpacker.utils;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import fun.xiantiao.mcpacker.enums.PlaceholderType;
+import fun.xiantiao.mcpacker.records.Placeholder;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
@@ -232,26 +234,39 @@ public class Tool {
         }
     }
 
+    // 方法返回匹配的内容
+    public static Set<Placeholder> extractPlaceholderValues(String input, PlaceholderType type) {
+        // 匹配 $(mcp.([^)]+))(number)
+        String patternWithNumber = "\\$\\(mcp\\.([^)]+)\\)\\(number\\)";
+        // 匹配 $(mcp.([^)]+))
+        String patternWithoutNumber = "\\$\\(mcp\\.([^)]+)\\)";
 
-    /**
-     * 从文本中提取以 $(mcp. 开头并以 ) 结尾的中间值
-     *
-     * @param text 输入文本
-     * @return 匹配的中间值列表
-     */
-    public static Set<String> extractPlaceholderValues(String text) {
-        Set<String> values = new HashSet<>();
-        // 正则表达式匹配 $(mcp.开头和)结尾，中间内容捕获
-        String regex = "\\$\\(mcp\\.([^)]+)\\)";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(text);
+        // 编译正则表达式
+        Pattern withNumberPattern = Pattern.compile(patternWithNumber);
+        Pattern withoutNumberPattern = Pattern.compile(patternWithoutNumber);
 
-        // 查找所有匹配项并提取中间值
-        while (matcher.find()) {
-            values.add(matcher.group(1)); // 获取捕获组中的值
+        // 创建结果集合
+        Set<Placeholder> results = new HashSet<>();
+
+        if (type == PlaceholderType.Number) {
+            // 匹配 $(mcp.([^)]+))(number)
+            Matcher withNumberMatcher = withNumberPattern.matcher(input);
+            while (withNumberMatcher.find()) {
+                results.add(new Placeholder(withNumberMatcher.group(1), PlaceholderType.Number));
+            }
+        } else {
+            // 匹配 $(mcp.([^)]+)) 并排除带 (number) 的匹配
+            Matcher withoutNumberMatcher = withoutNumberPattern.matcher(input);
+            while (withoutNumberMatcher.find()) {
+                String matchedText = withoutNumberMatcher.group(1);
+                // 确保不匹配带 (number) 的部分
+                if (!input.contains("$(mcp." + matchedText + ")(number)")) {
+                    results.add(new Placeholder(matchedText, PlaceholderType.Text));
+                }
+            }
         }
 
-        return values;
+        return results;
     }
 
     /**

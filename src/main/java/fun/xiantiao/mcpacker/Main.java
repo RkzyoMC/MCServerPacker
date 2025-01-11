@@ -3,6 +3,8 @@ package fun.xiantiao.mcpacker;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import fun.xiantiao.mcpacker.enums.PlaceholderType;
+import fun.xiantiao.mcpacker.records.Placeholder;
 import fun.xiantiao.mcpacker.utils.PlaceholdersUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -66,11 +68,22 @@ public class Main {
                 try {
                     String body = readFileToString(path); // 文件内容
                     String newBody = body;                // 新文件内容
-                    Set<String> strings = extractPlaceholderValues(body); // body内的papi
-                    for (String papi : strings) {
-                        String papied = placeholdersUtils.get(papi); // 获取值
-                        newBody = newBody.replaceAll("\\$\\(mcp\\."+papi+"\\)", papied);
-                        writeFileOverwrite(path, newBody);
+                    {
+                        Set<Placeholder> strings = extractPlaceholderValues(body, PlaceholderType.Text); // body内的papi
+                        for (Placeholder placeholder : strings) {
+                            String papied = placeholdersUtils.get(placeholder.text()); // 获取值
+                            newBody = newBody.replaceAll("\\$\\(mcp\\."+placeholder.text()+"\\)", papied);
+                            writeFileOverwrite(path, newBody);
+                        }
+                    }
+
+                    {
+                        Set<Placeholder> strings = extractPlaceholderValues(body, PlaceholderType.Number); // body内的papi
+                        for (Placeholder placeholder : strings) {
+                            String papied = placeholdersUtils.get(placeholder.text()); // 获取值
+                            newBody = newBody.replaceAll("\"\\$\\(mcp\\."+placeholder.text()+"\\)\\(number\\)\"", papied);
+                            writeFileOverwrite(path, newBody);
+                        }
                     }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -101,12 +114,25 @@ public class Main {
         PlaceholdersUtils placeholdersUtils = new PlaceholdersUtils(asJsonObject); // 获取源papi
         String body = readFileToString(tmpSettingsPath); // 文件内容
         String newBody = body;                // 新文件内容
-        Set<String> strings = extractPlaceholderValues(body); // body内的papi
-        for (String papi : strings) {
-            String papied = placeholdersUtils.get(papi); // 获取值
-            newBody = newBody.replaceAll("\\$\\(mcp\\."+papi+"\\)", papied);
-            writeFileOverwrite(tmpSettingsPath, newBody);
+
+        {
+            Set<Placeholder> strings = extractPlaceholderValues(body, PlaceholderType.Text); // body内的papi
+            for (Placeholder placeholder : strings) {
+                String papied = placeholdersUtils.get(placeholder.text()); // 获取值
+                newBody = newBody.replaceAll("\\$\\(mcp\\."+placeholder.text()+"\\)", papied);
+                writeFileOverwrite(tmpSettingsPath, newBody);
+            }
         }
+
+        {
+            Set<Placeholder> strings = extractPlaceholderValues(body, PlaceholderType.Number); // body内的papi
+            for (Placeholder placeholder : strings) {
+                String papied = placeholdersUtils.get(placeholder.text()); // 获取值
+                newBody = newBody.replaceAll("\"\\$\\(mcp\\."+placeholder.text()+"\\)\\(number\\)\"", papied);
+                writeFileOverwrite(tmpSettingsPath, newBody);
+            }
+        }
+
 
         BufferedReader reader2 = Files.newBufferedReader(tmpSettingsPath);
         return JsonParser.parseReader(reader2).getAsJsonObject();
