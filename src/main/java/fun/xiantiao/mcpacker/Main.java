@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import static fun.xiantiao.mcpacker.utils.Tool.*;
+import static fun.xiantiao.mcpacker.utils.Tool.copyDirectory;
 
 public class Main {
     private static final Logger logger = LogManager.getLogger(Main.class);
@@ -91,15 +92,24 @@ public class Main {
         createDirectory(PATH_BACKUP_BUILT);
     }
 
-    private static @NotNull JsonObject loadSettings() {
-        Path settingsPath = getDataFolder().resolve("mcp.build.setting.json");
+    private static @NotNull JsonObject loadSettings() throws IOException {
+        copyDirectory( getDataFolder().resolve("mcp.build.setting.json"), getDataFolder().resolve(".mcp.build.setting.json"));
 
-        try (BufferedReader reader = Files.newBufferedReader(settingsPath)) {
-            return JsonParser.parseReader(reader).getAsJsonObject();
-        } catch (IOException e) {
-            logger.error("Error loading settings file.", e);
-            throw new RuntimeException(e);
+        Path tmpSettingsPath = getDataFolder().resolve(".mcp.build.setting.json");
+        BufferedReader reader = Files.newBufferedReader(tmpSettingsPath);
+        JsonObject asJsonObject = JsonParser.parseReader(reader).getAsJsonObject();
+        PlaceholdersUtils placeholdersUtils = new PlaceholdersUtils(asJsonObject); // 获取源papi
+        String body = readFileToString(tmpSettingsPath); // 文件内容
+        String newBody = body;                // 新文件内容
+        Set<String> strings = extractPlaceholderValues(body); // body内的papi
+        for (String papi : strings) {
+            String papied = placeholdersUtils.get(papi); // 获取值
+            newBody = newBody.replaceAll("\\$\\(mcp\\."+papi+"\\)", papied);
+            writeFileOverwrite(tmpSettingsPath, newBody);
         }
+
+        BufferedReader reader2 = Files.newBufferedReader(tmpSettingsPath);
+        return JsonParser.parseReader(reader2).getAsJsonObject();
     }
 
     private static @NotNull Path getDataFolder() {
