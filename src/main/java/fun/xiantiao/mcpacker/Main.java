@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Matcher;
 
 import static fun.xiantiao.mcpacker.utils.Tool.*;
 import static fun.xiantiao.mcpacker.utils.Tool.copyDirectory;
@@ -119,7 +120,7 @@ public class Main {
             Set<Placeholder> strings = extractPlaceholderValues(body, PlaceholderType.Text); // body内的papi
             for (Placeholder placeholder : strings) {
                 String papied = placeholdersUtils.get(placeholder.text()); // 获取值
-                newBody = newBody.replaceAll("\\$\\(mcp\\."+placeholder.text()+"\\)", papied);
+                newBody = newBody.replaceAll("\\$\\(mcp\\."+placeholder.text()+"\\)", Matcher.quoteReplacement(papied));
                 writeFileOverwrite(tmpSettingsPath, newBody);
             }
         }
