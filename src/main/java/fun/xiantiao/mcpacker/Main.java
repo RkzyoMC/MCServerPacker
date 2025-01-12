@@ -15,10 +15,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 
 import static fun.xiantiao.mcpacker.utils.Tool.*;
@@ -116,23 +113,35 @@ public class Main {
         String body = readFileToString(tmpSettingsPath); // 文件内容
         String newBody = body;                // 新文件内容
 
-        {
-            Set<Placeholder> strings = extractPlaceholderValues(body, PlaceholderType.Text); // body内的papi
-            for (Placeholder placeholder : strings) {
-                String papied = placeholdersUtils.get(placeholder.text()); // 获取值
-                newBody = newBody.replaceAll("\\$\\(mcp\\."+placeholder.text()+"\\)", Matcher.quoteReplacement(papied));
-                writeFileOverwrite(tmpSettingsPath, newBody);
+        Set<Placeholder> p = new HashSet<>();
+        p.addAll(extractPlaceholderValues(body, PlaceholderType.Text));
+        p.addAll(extractPlaceholderValues(body, PlaceholderType.Number));
+        while (!p.isEmpty()) {
+            {
+                Set<Placeholder> strings = extractPlaceholderValues(body, PlaceholderType.Text); // body内的papi
+                for (Placeholder placeholder : strings) {
+                    String papied = placeholdersUtils.get(placeholder.text()); // 获取值
+                    newBody = newBody.replaceAll("\\$\\(mcp\\."+placeholder.text()+"\\)", Matcher.quoteReplacement(papied));
+                    writeFileOverwrite(tmpSettingsPath, newBody);
+                }
             }
+
+            {
+                Set<Placeholder> strings = extractPlaceholderValues(body, PlaceholderType.Number); // body内的papi
+                for (Placeholder placeholder : strings) {
+                    String papied = placeholdersUtils.get(placeholder.text()); // 获取值
+                    newBody = newBody.replaceAll("\"\\$\\(mcp\\."+placeholder.text()+"\\)\\(number\\)\"", Matcher.quoteReplacement(papied));
+                    writeFileOverwrite(tmpSettingsPath, newBody);
+                }
+            }
+
+            p.clear();
+
+            p.addAll(extractPlaceholderValues(readFileToString(tmpSettingsPath), PlaceholderType.Text));
+            p.addAll(extractPlaceholderValues(readFileToString(tmpSettingsPath), PlaceholderType.Number));
         }
 
-        {
-            Set<Placeholder> strings = extractPlaceholderValues(body, PlaceholderType.Number); // body内的papi
-            for (Placeholder placeholder : strings) {
-                String papied = placeholdersUtils.get(placeholder.text()); // 获取值
-                newBody = newBody.replaceAll("\"\\$\\(mcp\\."+placeholder.text()+"\\)\\(number\\)\"", Matcher.quoteReplacement(papied));
-                writeFileOverwrite(tmpSettingsPath, newBody);
-            }
-        }
+
 
 
         BufferedReader reader2 = Files.newBufferedReader(tmpSettingsPath);
